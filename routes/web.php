@@ -1,5 +1,8 @@
 <?php
 
+use App\Livewire\Posts\Create;
+use App\Livewire\Posts\Edit;
+use App\Livewire\Posts\Index;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -21,4 +24,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+Route::middleware(['auth', 'verified'])
+    ->prefix('posts')
+    ->name('posts.')
+    ->group(function () {
+        Route::get('/', Index::class)->name('index');
+        Route::get('/create', Create::class)->name('create');
+        Route::get('/{post}/edit', Edit::class)->name('edit');
+    });
+
+require __DIR__ . '/auth.php';
