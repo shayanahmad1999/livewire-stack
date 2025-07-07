@@ -60,7 +60,7 @@ class User extends Authenticatable
             ->implode('');
     }
 
-    public function post(): HasMany
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }
