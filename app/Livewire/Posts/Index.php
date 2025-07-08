@@ -3,6 +3,7 @@
 namespace App\Livewire\Posts;
 
 use App\Models\Post;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithoutUrlPagination;
@@ -16,6 +17,7 @@ class Index extends Component
     public function delete($id)
     {
         $post = Post::findOrFail($id);
+        $this->authorize('delete', $post);
         Storage::disk('public')->delete($post->image);
         $post->delete();
         session()->flash('message', 'Post deleted successfully!');
