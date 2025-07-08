@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Livewire\Posts\Create;
 use App\Livewire\Posts\Edit;
 use App\Livewire\Posts\Index;
@@ -10,9 +11,8 @@ use App\Livewire\Settings\Profile;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::post('/user/review', [HomeController::class, 'reviewStore'])->middleware(['auth', 'verified']);
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
