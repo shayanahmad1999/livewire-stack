@@ -18,4 +18,14 @@ class Post extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function scopeOwnedBy($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
 }
