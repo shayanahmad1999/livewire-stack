@@ -4,7 +4,6 @@ namespace App\Livewire\Posts;
 
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -51,9 +50,6 @@ class Index extends Component
             })
             ->latest()
             ->paginate(10);
-
-        Log::info('Search term:', ['search' => $this->search]);
-
 
         return view('livewire.posts.index', compact('posts'));
     }
