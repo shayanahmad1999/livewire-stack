@@ -4,19 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Review;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
-    public function home()
+    public function home(Request $request)
     {
         $posts = Post::with('user')
+            ->when(
+                $request->search,
+                fn($query, $search) =>
+                $query->where('title', 'like', '%' . $search . '%')
+            )
+            ->when(
+                $request->user,
+                fn($query, $userId) =>
+                $query->where('user_id', $userId)
+            )
             ->inRandomOrder()
             ->paginate(18);
 
         return view('welcome', [
             'posts' => $posts,
+            'users' => User::all()
         ]);
     }
 

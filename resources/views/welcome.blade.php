@@ -1,22 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth dark">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to My Blog</title>
 
-    <!-- Tailwind Config -->
-    <script>
-        window.tailwind = {
-            config: {
-                darkMode: 'class',
-            }
-        };
-    </script>
-
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    @include('partials.head')
 
     <!-- Dark Mode Script -->
     <script>
@@ -73,7 +63,32 @@
     <!-- Page Content -->
     <div class="flex-grow">
         <section class="text-center py-10 px-4">
-            <h1 class="text-4xl font-bold mb-2">Welcome to My Blog</h1>
+            <form id="filterForm" action="{{ route('home') }}" method="get"
+                class="max-w-7xl mx-auto mb-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input id="searchInput" name="search" type="search" value="{{ request('search') }}"
+                    placeholder="Search by title..."
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" />
+
+                <select name="user" id="userSelect"
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700
+                        bg-white dark:bg-gray-900 text-gray-900 dark:text-white
+                        rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
+                    <option value="">All Users</option>
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}" {{ request('user') == $user->id ? 'selected' : '' }}>
+                            {{ $user->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+            </form>
+            <a href="{{ route('home') }}"
+                class="block w-fit rounded-2xl bg-blue-500 hover:bg-blue-700 text-white px-4 py-3 mx-auto">
+                🔄 Reset Filters
+            </a>
+
+
+            <h1 class="text-4xl font-bold mb-2 mt-4">Welcome to My Blog</h1>
             <p class="text-lg">Discover the latest posts and ideas.</p>
         </section>
 
@@ -122,10 +137,6 @@
         </div>
     </div>
 
-    <!-- Footer always sticks to bottom -->
-    <footer class="p-4 text-center bg-gray-100 dark:bg-gray-800">
-        <p>&copy; {{ date('Y') }} by Shayan. All rights reserved.</p>
-    </footer>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         function submitRating(postId, rating) {
@@ -165,47 +176,27 @@
             setTimeout(() => toast.remove(), 4000);
         }
     </script>
+    <script>
+        $(document).ready(function() {
 
-    {{-- <script>
-        function submitRating(postId, rating) {
-            fetch('/user/review', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        post_id: postId,
-                        rating: rating
-                    })
-                })
-                .then(res => res.json().then(data => ({
-                    ok: res.ok,
-                    data
-                })))
-                .then(({
-                    ok,
-                    data
-                }) => {
-                    if (ok) {
-                        showToast('success', data.message);
-                    } else {
-                        const message = data.errors ? data.errors.join('\n') : data.message;
-                        showToast('error', message);
-                    }
-                })
-                .catch(() => showToast('error', 'Network error. Please try again.'));
-        }
+            let timeout;
+            $('#searchInput').on('input', function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(function() {
+                    $('#filterForm').submit();
+                }, 1000);
+            });
 
-        function showToast(type, message) {
-            const bg = type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-            const toast = document.createElement('div');
-            toast.className = `fixed top-5 right-5 px-4 py-2 rounded shadow ${bg}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        }
-    </script> --}}
+            $('#userSelect').on('change', function() {
+                $('#filterForm').submit();
+            });
+        });
+    </script>
+
+    <!-- Footer always sticks to bottom -->
+    <footer class="p-4 text-center bg-gray-100 dark:bg-gray-800">
+        <p>&copy; {{ date('Y') }} by Shayan. All rights reserved.</p>
+    </footer>
 
 </body>
 
