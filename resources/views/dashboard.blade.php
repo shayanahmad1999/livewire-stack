@@ -1,18 +1,32 @@
 <x-layouts.app :title="__('Dashboard')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
-            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
-            <div class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-            </div>
+            {{-- Display Reviews --}}
+            @forelse ($reviews as $rev)
+                <div class="border rounded-xl p-4 bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">{{ $rev->title }}</h3>
+                    <p class="text-gray-800 dark:text-gray-200 mb-3">{{ $rev->content }}</p>
+
+                    {{-- Nested loop for reviews --}}
+                    @forelse ($rev->reviews as $review)
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-semibold text-gray-900 dark:text-gray-100">{{ $review->user->name }}</span>
+                            <span>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <span
+                                        class="{{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600' }}">★</span>
+                                @endfor
+                            </span>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 mb-2">{{ $review->review }}</p>
+                    @empty
+                        <p class="text-gray-500 dark:text-gray-400">No reviews for this post.</p>
+                    @endforelse
+                </div>
+            @empty
+                <p class="text-gray-500 dark:text-gray-400">No posts found.</p>
+            @endforelse
         </div>
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
-        </div>
+        {{ $reviews->links() }}
     </div>
 </x-layouts.app>
