@@ -35,50 +35,54 @@ class HomeController extends Controller
     public function reviewStore(Request $request)
     {
         try {
-            $request->validate([
+            $validated = $request->validate([
                 'post_id' => 'required|exists:posts,id',
                 'rating' => 'required|integer|min:1|max:5',
+                'review' => 'nullable|string|max:500',
             ]);
 
-            switch ($request->rating) {
-                case 1:
-                    $review = 'bad experience';
-                    break;
-                case 2:
-                    $review = 'some good experience';
-                    break;
-                case 3:
-                    $review = 'good experience';
-                    break;
-                case 4:
-                    $review = 'excellent experience';
-                    break;
-                case 5:
-                    $review = 'much better experience';
-                    break;
-                default:
-                    $review = '';
-                    break;
+            $existingReview = Review::where('user_id', auth()->id())
+                ->where('post_id', $validated['post_id'])
+                ->first();
+
+            if ($existingReview) {
+                return response()->json([
+                    'type' => 'error',
+                    'message' => __('You have already submitted feedback for this post.')
+                ]);
             }
+
+            $autoReview = match ($validated['rating']) {
+                1 => 'Very bad experience',
+                2 => 'Below average experience',
+                3 => 'Average experience',
+                4 => 'Great experience',
+                5 => 'Outstanding experience',
+            };
+
+            $reviewText = $validated['review'] ?? $autoReview;
 
             Review::create([
                 'user_id' => auth()->id(),
-                'post_id' => $request->post_id,
-                'rating' => $request->rating,
-                'review' => $request->review ?? $review,
+                'post_id' => $validated['post_id'],
+                'rating' => $validated['rating'],
+                'review' => $reviewText,
             ]);
 
-            return response()->json(['type' => 'success', 'message' => 'Thanks for your feedback!']);
+            return response()->json([
+                'type' => 'success',
+                'message' => __('Thanks for your feedback!')
+            ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'type' => 'error',
-                'errors' => $e->validator->errors()->all()
+                'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
             Log::error('Review submission failed: ' . $e->getMessage());
             return response()->json([
                 'type' => 'error',
-                'message' => 'Something went wrong. Please try again.'
+                'message' => __('Something went wrong. Please try again.')
             ], 500);
         }
     }

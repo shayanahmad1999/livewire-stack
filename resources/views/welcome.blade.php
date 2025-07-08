@@ -152,7 +152,7 @@
                     rating: rating
                 }),
                 success: function(response) {
-                    showToast('success', response.message);
+                    showToast(response.type, response.message);
                 },
                 error: function(xhr) {
                     let message = 'An error occurred.';
