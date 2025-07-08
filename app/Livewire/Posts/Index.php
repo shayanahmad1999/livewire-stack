@@ -25,8 +25,12 @@ class Index extends Component
 
     public function render()
     {
-        return view('livewire.posts.index', [
-            'posts' => auth()->user()->posts()->latest()->paginate(10)
-        ]);
+        $user = auth()->user();
+
+        $posts = $user->isAdmin()
+            ? Post::latest()->paginate(10)
+            : $user->posts()->latest()->paginate(10);
+
+        return view('livewire.posts.index', compact('posts'));
     }
 }

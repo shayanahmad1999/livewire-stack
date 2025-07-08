@@ -11,17 +11,17 @@ class PostPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user)
     {
-        return false;
+        return $user->isAdmin();
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Post $post): bool
+    public function view(User $user, Post $post)
     {
-        return false;
+        return $user->isAdmin() || $user->id === $post->user_id;
     }
 
     /**
@@ -37,7 +37,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-         return $user->id === $post->user_id;
+        return $user->id === $post->user_id;
     }
 
     /**
