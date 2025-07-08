@@ -8,6 +8,9 @@
             {{ session('message') }}
         </div>
     @endif
+    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search posts..."
+        class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring
+               bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700" />
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -49,9 +52,11 @@
                         <td class="px-6 py-4">
                             <a href="{{ route('posts.edit', $post->id) }}" wire:navigate
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a> |
-                            <a wire:click="delete({{ $post->id }})" wire:navigate wire:confirm="Are you sure want to delete!"
+                            <a wire:click="delete({{ $post->id }})" wire:navigate
+                                wire:confirm="Are you sure want to delete!"
                                 class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a> |
-                            <a href="{{ route('posts.review', $post->id) }}" wire:navigate wire:confirm="Are you sure want to delete!"
+                            <a href="{{ route('posts.review', $post->id) }}" wire:navigate
+                                wire:confirm="Are you sure want to delete!"
                                 class="font-medium text-yellow-600 dark:text-yellow-500 hover:underline">Review</a>
                         </td>
                         </td>
