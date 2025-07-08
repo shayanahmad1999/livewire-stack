@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth', 'verified', 'multiRole:admin,creator'])
     ->prefix('posts')
     ->name('posts.')
     ->group(function () {
