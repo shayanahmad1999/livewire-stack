@@ -43,7 +43,7 @@ cp .env.example .env
 php artisan key:generate
 
 # Run database migrations
-php artisan migrate
+php artisan migrate --seed
 
 # Run the development server again
 php artisan serve
