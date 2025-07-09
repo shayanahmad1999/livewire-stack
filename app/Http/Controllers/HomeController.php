@@ -11,9 +11,35 @@ use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
+    // public function home(Request $request)
+    // {
+    //     $posts = Post::with('user')
+    //         ->when(
+    //             $request->search,
+    //             fn($query, $search) =>
+    //             $query->where('title', 'like', '%' . $search . '%')
+    //         )
+    //         ->when(
+    //             $request->user,
+    //             fn($query, $userId) =>
+    //             $query->where('user_id', $userId)
+    //         )
+    //         ->inRandomOrder()
+    //         ->paginate(18);
+
+    //     return view('welcome', [
+    //         'posts' => $posts,
+    //         'users' => User::all()
+    //     ]);
+    // }
+
     public function home(Request $request)
     {
-        $posts = Post::with('user')
+        $requestRating = $request->rating ? (float) $request->rating : null;
+
+        $postsQuery = Post::with('user')
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->when(
                 $request->search,
                 fn($query, $search) =>
@@ -23,9 +49,17 @@ class HomeController extends Controller
                 $request->user,
                 fn($query, $userId) =>
                 $query->where('user_id', $userId)
-            )
-            ->inRandomOrder()
-            ->paginate(18);
+            );
+
+        if ($requestRating !== null) {
+            $postsQuery->whereHas('reviews', function ($query) use ($requestRating) {
+                $query->select('post_id')
+                    ->groupBy('post_id')
+                    ->havingRaw('rating = ?', [$requestRating]);
+            });
+        }
+
+        $posts = $postsQuery->inRandomOrder()->paginate(18);
 
         return view('welcome', [
             'posts' => $posts,

@@ -28,4 +28,14 @@ class Post extends Model
     {
         return $query->where('user_id', $userId);
     }
+
+    public function getAverageRatingAttribute()
+    {
+        return $this->reviews_avg_rating ?? round($this->reviews()->avg('rating'), 1);
+    }
+
+    public function getRatingCountAttribute()
+    {
+        return $this->reviews_count ?? $this->reviews()->count();
+    }
 }

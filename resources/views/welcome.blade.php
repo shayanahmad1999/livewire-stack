@@ -8,6 +8,94 @@
 
     @include('partials.head')
 
+    <style>
+        .rating-button {
+            position: relative;
+            overflow: hidden;
+            transition: color 0.3s ease, border-color 0.3s ease;
+            z-index: 0;
+        }
+
+        .rating-button::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 0;
+            height: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            transition: width 0.5s ease, height 0.5s ease;
+            z-index: -1;
+        }
+
+        .rating-bad:hover::before {
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.4) 0%, rgba(239, 68, 68, 0) 60%);
+            width: 400px;
+            height: 400px;
+        }
+
+        .rating-bad:hover {
+            color: #fff;
+            border-color: #dc2626;
+        }
+
+        .rating-good:hover::before {
+            background: radial-gradient(circle, rgba(234, 179, 8, 0.4) 0%, rgba(234, 179, 8, 0) 60%);
+            width: 400px;
+            height: 400px;
+        }
+
+        .rating-good:hover {
+            color: #fff;
+            border-color: #facc15;
+        }
+
+        .rating-excellent:hover::before {
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.4) 0%, rgba(34, 197, 94, 0) 60%);
+            width: 400px;
+            height: 400px;
+        }
+
+        .rating-excellent:hover {
+            color: #fff;
+            border-color: #22c55e;
+        }
+
+        .rating-awesome:hover::before {
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0) 60%);
+            width: 400px;
+            height: 400px;
+        }
+
+        .rating-awesome:hover {
+            color: #fff;
+            border-color: #3b82f6;
+        }
+
+        .rating-outstanding:hover::before {
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, rgba(168, 85, 247, 0) 60%);
+            width: 400px;
+            height: 400px;
+        }
+
+        .rating-outstanding:hover {
+            color: #fff;
+            border-color: #a855f7;
+        }
+
+        .rating-home:hover::before {
+            background: radial-gradient(circle, rgba(107, 114, 128, 0.4) 0%, rgba(107, 114, 128, 0) 60%);
+            width: 400px;
+            height: 400px;
+        }
+
+        .rating-home:hover {
+            color: #fff;
+            border-color: #6b7280;
+        }
+    </style>
+
     <!-- Dark Mode Script -->
     <script>
         function toggleTheme() {
@@ -92,6 +180,20 @@
             <p class="text-lg">Discover the latest posts and ideas.</p>
         </section>
 
+        <div class="max-w-7xl mx-auto px-4 py-8 grid gap-6 lg:grid-cols-8 text-center">
+            <a href="{{ route('home') }}" class="rating-button rating-home px-4 py-1.5 text-sm border rounded">Home</a>
+            <a href="{{ route('home', ['rating' => 1]) }}"
+                class="rating-button rating-bad px-4 py-1.5 text-sm border rounded">Bad</a>
+            <a href="{{ route('home', ['rating' => 2]) }}"
+                class="rating-button rating-good px-4 py-1.5 text-sm border rounded">Good</a>
+            <a href="{{ route('home', ['rating' => 3]) }}"
+                class="rating-button rating-excellent px-4 py-1.5 text-sm border rounded">Excellent</a>
+            <a href="{{ route('home', ['rating' => 4]) }}"
+                class="rating-button rating-awesome px-4 py-1.5 text-sm border rounded">Awesome</a>
+            <a href="{{ route('home', ['rating' => 5]) }}"
+                class="rating-button rating-outstanding px-4 py-1.5 text-sm border rounded">Outstanding</a>
+        </div>
+
         <main class="max-w-7xl mx-auto px-4 py-8 grid gap-6 lg:grid-cols-3">
             @foreach ($posts as $post)
                 <article class="p-6 rounded shadow-md bg-gray-50 dark:bg-gray-800">
@@ -110,7 +212,7 @@
                     </div>
                     <h2 class="text-2xl font-semibold mb-2">{{ $post->title }}</h2>
                     <p> {{ $post->content }}</p>
-                    <div class="flex items-center space-x-1 mt-4">
+                    <div class="flex items-center space-x-1 mt-4 mb-4">
                         @auth
                             @for ($i = 1; $i <= 5; $i++)
                                 <svg onclick="submitRating({{ $post->id }}, {{ $i }})"
@@ -129,6 +231,8 @@
                             </p>
                         @endauth
                     </div>
+                    <p>⭐ Average Rating: {{ $post->average_rating }}</p>
+                    <p>📝 Total Ratings: {{ $post->rating_count }}</p>
                 </article>
             @endforeach
         </main>
