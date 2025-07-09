@@ -8,6 +8,9 @@ use App\Livewire\Posts\Reviews;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
+use App\Livewire\Users\Create as UsersCreate;
+use App\Livewire\Users\Edit as UsersEdit;
+use App\Livewire\Users\Index as UsersIndex;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +49,14 @@ Route::middleware(['auth', 'verified', 'multiRole:admin,creator'])
         Route::get('/create', Create::class)->name('create');
         Route::get('/{post}/edit', Edit::class)->name('edit');
         Route::get('/{post}/reviews', Reviews::class)->name('review');
+    });
+Route::middleware(['auth', 'verified', 'multiRole:admin'])
+    ->prefix('users')
+    ->name('users.')
+    ->group(function () {
+        Route::get('/', UsersIndex::class)->name('index');
+        Route::get('/create', UsersCreate::class)->name('create');
+        Route::get('/{user}/edit', UsersEdit::class)->name('edit');
     });
 
 require __DIR__ . '/auth.php';
