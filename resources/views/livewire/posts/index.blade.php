@@ -56,8 +56,9 @@
                                 wire:confirm="Are you sure want to delete!"
                                 class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a> |
                             <a href="{{ route('posts.review', $post->id) }}" wire:navigate
-                                wire:confirm="Are you sure want to delete!"
-                                class="font-medium text-yellow-600 dark:text-yellow-500 hover:underline">Review</a>
+                                class="font-medium text-yellow-600 dark:text-yellow-500 hover:underline">Review</a> |
+                            <a href="{{ route('posts.view', $post->id) }}" wire:navigate
+                                class="font-medium text-cyan-700 dark:text-cyan-500 hover:underline">View</a>
                         </td>
                         </td>
                     </tr>
