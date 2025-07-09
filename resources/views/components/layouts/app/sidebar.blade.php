@@ -11,11 +11,28 @@
                 <x-app-logo />
             </a>
 
+            @php
+                $unreadCount = auth()->user()->unreadNotifications()->count();
+            @endphp
+
+
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                     <flux:navlist.item icon="book-open-text" :href="route('posts.index')" :current="request()->routeIs('posts.*')" wire:navigate>{{ __('Posts') }}</flux:navlist.item>
                     <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>{{ __('User') }}</flux:navlist.item>
+                    <flux:navlist.item icon="bell"
+                        :href="route('users.notification')"
+                        :current="request()->routeIs('users.*')"
+                        wire:navigate>
+                        {{ __('Notification') }}
+
+                        @if($unreadCount > 0)
+                            <span class="ml-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
+                    </flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

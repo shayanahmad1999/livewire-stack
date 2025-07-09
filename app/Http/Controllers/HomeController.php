@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Review;
 use App\Models\User;
+use App\Notifications\PostRated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -68,6 +69,11 @@ class HomeController extends Controller
                 'rating' => $validated['rating'],
                 'review' => $reviewText,
             ]);
+
+            $post = Post::find($validated['post_id']);
+            $rater = auth()->user();
+
+            $post->user->notify(new PostRated($rater, $post, $validated['rating']));
 
             return response()->json([
                 'type' => 'success',
