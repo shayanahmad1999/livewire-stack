@@ -13,7 +13,7 @@ class View extends Component
 
     public function mount(Post $post)
     {
-        if ($post->user_id !== Auth::id()) {
+        if (!auth()->user()->can('view', $post)) {
             return $this->redirect(URL::previous(), navigate: true);
         }
         $this->post = $post;
