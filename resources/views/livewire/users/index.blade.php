@@ -1,79 +1,90 @@
-<div>
-    <div class="flex justify-end mr-6 pb-4">
+<div class="p-4">
+    <div class="flex justify-between items-center mb-4">
         <a href="{{ route('users.create') }}" wire:navigate
-            class="bg-indigo-500 hover:bg-indigo-700 p-3 rounded-2xl">Create</a>
+            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-xl">+ Create</a>
+
+        <div class="flex gap-3">
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search by name or email"
+                class="px-4 py-2 rounded-md border dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white" />
+            <select wire:model.live.debounce.300ms="filterRole"
+                class="px-4 py-2 rounded-md border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                <option value="">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="creator">Creator</option>
+                <option value="guest">Guest</option>
+            </select>
+        </div>
     </div>
+
     @if (session()->has('message'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <div class="bg-green-100 text-green-800 px-4 py-2 rounded-md mb-3">
             {{ session('message') }}
         </div>
     @endif
-    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search users..."
-        class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring
-               bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700" />
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+
+    @if (count((array) $selectedUsers) > 0)
+        <div class="bg-slate-900 text-white rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
+            <div>Selected: {{ count((array) $selectedUsers) }}</div>
+            <button wire:click="deleteBulk" class="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg">Delete
+                All</button>
+            <select wire:change="changeRoleBulk($event.target.value)"
+                class="px-4 py-2 rounded-md border dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                <option value="">Change Role</option>
+                <option value="admin">Admin</option>
+                <option value="creator">Creator</option>
+                <option value="guest">Guest</option>
+            </select>
+        </div>
+    @endif
+
+    <div class="overflow-x-auto shadow-md rounded-xl">
+        <table class="w-full text-sm text-left text-gray-700 dark:text-gray-300">
+            <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-xs">
                 <tr>
-                    <th scope="col" class="px-6 py-3">
-                        S.No
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Name
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Email
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Role
-                    </th>
-                    <th>
-                        Action
-                    </th>
+                    <th class="px-6 py-3"><input type="checkbox" wire:click="toggleSelectAll"></th>
+                    <th class="px-6 py-3">#</th>
+                    <th class="px-6 py-3">Name</th>
+                    <th class="px-6 py-3">Email</th>
+                    <th class="px-6 py-3">Role</th>
+                    <th class="px-6 py-3">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($users as $key => $user)
-                    <tr
-                        class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                        <th scope="row"
-                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {{ $key + 1 }}
-                        </th>
+                @forelse ($users as $index => $user)
+                    <tr wire:key="user-{{ $user->id }}"
+                        class="{{ in_array($user->id, $selectedUsers) ? 'bg-indigo-50 dark:bg-indigo-900' : 'bg-white dark:bg-gray-900' }}">
                         <td class="px-6 py-4">
-                            {{ $user->name }}
+                            <input type="checkbox" wire:model="selectedUsers" value="{{ $user->id }}">
                         </td>
-                        <td class="px-6 py-4">
-                            {{ $user->email }}
-                        </td>
+                        <td class="px-6 py-4">{{ ($users->currentPage() - 1) * $users->perPage() + $index + 1 }}</td>
+                        <td class="px-6 py-4">{{ $user->name }}</td>
+                        <td class="px-6 py-4">{{ $user->email }}</td>
                         <td class="px-6 py-4">
                             <select wire:change="changeRole({{ $user->id }}, $event.target.value)"
-                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700
-                        bg-white dark:bg-gray-900 text-gray-900 dark:text-white
-                        rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
-                                <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="creator" {{ $user->role == 'creator' ? 'selected' : '' }}>Creator
-                                </option>
-                                <option value="guest" {{ $user->role == 'guest' ? 'selected' : '' }}>Guest</option>
+                                class="px-2 py-1 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700">
+                                <option value="admin" @selected($user->role === 'admin')>Admin</option>
+                                <option value="creator" @selected($user->role === 'creator')>Creator</option>
+                                <option value="guest" @selected($user->role === 'guest')>Guest</option>
                             </select>
                         </td>
                         <td class="px-6 py-4">
                             <a href="{{ route('users.edit', $user->id) }}" wire:navigate
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a> |
-                            <a wire:click="delete({{ $user->id }})" wire:navigate
-                                wire:confirm="Are you sure want to delete!"
-                                class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a> 
+                                class="text-blue-600 hover:underline">Edit</a>
+                            |
+                            <button wire:click="delete({{ $user->id }})"
+                                class="text-red-600 hover:underline">Delete</button>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td class="px-6 py-4">
-                            <span>No Users Available</span>
-                        </td>
+                        <td colspan="6" class="px-6 py-4 text-center">No users found.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
-        <div class="p-2 mt-6">{{ $users->links() }}</div>
+    </div>
+
+    <div class="mt-4">
+        {{ $users->links() }}
     </div>
 </div>

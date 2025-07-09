@@ -3,48 +3,88 @@
 namespace App\Livewire\Users;
 
 use App\Models\User;
-use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
+use Livewire\Attributes\Url;
 
 class Index extends Component
 {
-    use WithPagination, WithoutUrlPagination;
+    use WithPagination;
 
     #[Url(history: true)]
     public $search = '';
 
-    public function changeRole($id, $newRole)
+    #[Url(history: true)]
+    public $filterRole = '';
+
+    public $selectedUsers = [];
+
+    public function updatedSearch()
     {
-        $user = User::findOrFail($id);
-        $user->role = $newRole;
-        $user->save();
-        $this->reset();
-        session()->flash('message', 'Role of ' . $user->name . ' to ' . $newRole . ' Change Successfully');
+        $this->resetPage();
+    }
+
+    public function updatedFilterRole()
+    {
+        $this->resetPage();
+    }
+
+    public function getSelectableUsersProperty()
+    {
+        return User::where('id', '!=', auth()->id())->pluck('id')->toArray();
+    }
+
+    public function toggleSelectAll()
+    {
+        $this->selectedUsers = count($this->selectedUsers) === count($this->selectableUsers)
+            ? []
+            : $this->selectableUsers;
+    }
+
+    public function deleteBulk()
+    {
+        User::whereIn('id', $this->selectedUsers)->where('id', '!=', auth()->id())->delete();
+        $this->selectedUsers = [];
+        session()->flash('message', 'Selected users deleted successfully!');
+        $this->resetPage();
+    }
+
+    public function changeRoleBulk($role)
+    {
+        User::whereIn('id', $this->selectedUsers)->where('id', '!=', auth()->id())->update(['role' => $role]);
+        $this->selectedUsers = [];
+        session()->flash('message', 'Roles updated successfully for selected users!');
+        $this->resetPage();
+    }
+
+    public function changeRole($id, $role)
+    {
+        if ($id == auth()->id()) return;
+        User::where('id', $id)->update(['role' => $role]);
+        session()->flash('message', 'User role updated successfully!');
     }
 
     public function delete($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        if ($id == auth()->id()) return;
+        User::findOrFail($id)->delete();
         session()->flash('message', 'User deleted successfully!');
+        $this->resetPage();
     }
 
     public function render()
     {
         $users = User::query()
-            ->whereNot('id', auth()->user()->id)
-            ->when(
-                $this->search,
+            ->where('id', '!=', auth()->id())
+            ->when($this->filterRole, fn($q) => $q->where('role', $this->filterRole))
+            ->when($this->search, fn($q) => $q->where(
                 fn($query) =>
-                $query->where(
-                    fn($q) =>
-                    $q->where('name', 'LIKE', "%{$this->search}%")
-                        ->orWhere('email', 'LIKE', "%{$this->search}%")
-                )
-            )
-            ->latest()->paginate(10);
+                $query->where('name', 'like', "%{$this->search}%")
+                    ->orWhere('email', 'like', "%{$this->search}%")
+            ))
+            ->latest()
+            ->paginate(10);
+
         return view('livewire.users.index', [
             'users' => $users,
         ]);
